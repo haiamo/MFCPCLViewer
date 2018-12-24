@@ -46,9 +46,6 @@ END_MESSAGE_MAP()
 
 
 // CMFCPCLViewerDlg 对话框
-
-
-
 CMFCPCLViewerDlg::CMFCPCLViewerDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_MFCPCLVIEWER_DIALOG, pParent)
 {
@@ -57,8 +54,6 @@ CMFCPCLViewerDlg::CMFCPCLViewerDlg(CWnd* pParent /*=NULL*/)
 	m_viewer = new pcl::visualization::PCLVisualizer("PCL", false);
 	m_win = m_viewer->getRenderWindow();
 	m_iren = vtkRenderWindowInteractor::New();
-	//m_win->SetGlobalWarningDisplay(0);
-	//m_iren->SetGlobalWarningDisplay(0);
 	
 	m_cloud.reset(::new PointCloud<PointXYZ>);
 	m_cloudrgb.reset(::new PointCloud<PointXYZRGB>);
@@ -181,21 +176,6 @@ HCURSOR CMFCPCLViewerDlg::OnQueryDragIcon()
 void CMFCPCLViewerDlg::OnBnClickedLoad()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	//vtkOutputWindow* outWin = vtkOutputWindow::GetInstance();
-	//CWnd* tmpWnd = FindWindow("", "MFCPCLViewer.exe");
-	//CWnd* tmpWnd = FindWindowEx(this->GetSafeHwnd(), NULL, outWin->GetClassName(), NULL);
-	//EnumChildWindows(this->m_hWnd, GetChildrenWindowNames, NULL);
-	//EnumWindows(GetChildrenWindowNames, NULL);
-	/*if (tmpWnd != NULL)
-	{
-		HWND tmphWnd = tmpWnd->GetSafeHwnd();
-		CloseHandle(tmphWnd);
-	}
-	else
-	{
-		MessageBox("Can't find vtkOutputWindow.");
-	}*/
-
 	CFileDialog fileopendlg(TRUE);
 	CString filepath;
 	if (fileopendlg.DoModal() == IDOK)
@@ -226,7 +206,6 @@ void CMFCPCLViewerDlg::OnBnClickedLoad()
 			tmpPt.z = m_cloudrgb->points[ii].z;
 			m_cloud->points.push_back(tmpPt);
 		}
-		MessageBox("Loaded PCL point cloud successfully.", "Load finshed.");
 
 		if (::IsWindow(this->GetSafeHwnd()))
 		{
@@ -263,76 +242,11 @@ void CMFCPCLViewerDlg::OnBnClickedLoad()
 void CMFCPCLViewerDlg::OnBnClickedCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	m_viewer->close();
-	m_cloud->clear();
 	m_cloud.reset();
-	m_cloudrgb->clear();
 	m_cloudrgb.reset();
 	m_win->Delete();
 	m_iren->Delete();
-
+	m_viewer->close();
 
 	CDialogEx::OnCancel();
-}
-
-BOOL CMFCPCLViewerDlg::KillProcessFromName(CString strProcessName)
-{
-	//创建进程快照(TH32CS_SNAPPROCESS表示创建所有进程的快照)  
-	HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-
-	//PROCESSENTRY32进程快照的结构体  
-	PROCESSENTRY32 pe;
-
-	//实例化后使用Process32First获取第一个快照的进程前必做的初始化操作  
-	pe.dwSize = sizeof(PROCESSENTRY32);
-
-	//下面的IF效果同:  
-	//if(hProcessSnap == INVALID_HANDLE_VALUE)   无效的句柄  
-	if (!Process32First(hSnapShot, &pe))
-	{
-		return FALSE;
-	}
-
-	//将字符串转换为小写  
-	strProcessName.MakeLower();
-
-	//如果句柄有效  则一直获取下一个句柄循环下去  
-	while (Process32Next(hSnapShot, &pe))
-	{
-		//pe.szExeFile获取当前进程的可执行文件名称  
-		CString scTmp = pe.szExeFile;
-		//将可执行文件名称所有英文字母修改为小写  
-		scTmp.MakeLower();
-		//比较当前进程的可执行文件名称和传递进来的文件名称是否相同  
-		//相同的话Compare返回0  
-		if (!scTmp.Compare(strProcessName))
-		{
-			//从快照进程中获取该进程的PID(即任务管理器中的PID)  
-			DWORD dwProcessID = pe.th32ProcessID;
-			HANDLE hProcess = ::OpenProcess(PROCESS_TERMINATE, FALSE, dwProcessID);
-			::TerminateProcess(hProcess, 0);
-			CloseHandle(hProcess);
-			return TRUE;
-		}
-		scTmp.ReleaseBuffer();
-	}
-	strProcessName.ReleaseBuffer();
-	return FALSE;
-}
-
-BOOL CALLBACK GetChildrenWindowNames(HWND hwnd, LPARAM lParam)
-{
-	char* name = new char[50];
-	int len = GetWindowTextLength(hwnd);
-	GetWindowText(hwnd, name, len + 1);
-	if (strcmp(name,"vtkOutputWindow")==0)
-	{
-		SendMessage(hwnd, WM_ACTIVATE, 0, 0);
-		SendMessage(hwnd, WM_CLOSE, 0, 0);
-		//CloseHandle(hwnd);
-		delete name;
-		return 0;
-	}
-	delete name;
-	return 1;
 }

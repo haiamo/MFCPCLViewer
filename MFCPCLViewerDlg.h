@@ -71,10 +71,4 @@ private:
 public:
 	afx_msg void OnBnClickedLoad();
 	afx_msg void OnBnClickedCancel();
-
-	BOOL KillProcessFromName(CString strProcessName);
-
-	string m_windowNames;
 };
-
-BOOL CALLBACK GetChildrenWindowNames(HWND hwnd, LPARAM lParam);
