@@ -53,12 +53,11 @@ CMFCPCLViewerDlg::CMFCPCLViewerDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_MFCPCLVIEWER_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	vtkObject::SetGlobalWarningDisplay(0);
 	m_viewer = new pcl::visualization::PCLVisualizer("PCL", false);
 	m_win = m_viewer->getRenderWindow();
 	m_iren = vtkRenderWindowInteractor::New();
-	//m_win->SetGlobalWarningDisplay(0);
-	//m_iren->SetGlobalWarningDisplay(0);
+	m_win->SetGlobalWarningDisplay(0);
+	m_iren->SetGlobalWarningDisplay(0);
 	
 	m_cloud.reset(::new PointCloud<PointXYZ>);
 	m_cloudrgb.reset(::new PointCloud<PointXYZRGB>);
@@ -181,12 +180,12 @@ HCURSOR CMFCPCLViewerDlg::OnQueryDragIcon()
 void CMFCPCLViewerDlg::OnBnClickedLoad()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	//vtkOutputWindow* outWin = vtkOutputWindow::GetInstance();
+	vtkOutputWindow* outWin = vtkOutputWindow::GetInstance();
 	//CWnd* tmpWnd = FindWindow("", "MFCPCLViewer.exe");
-	//CWnd* tmpWnd = FindWindowEx(this->GetSafeHwnd(), NULL, outWin->GetClassName(), NULL);
+	CWnd* tmpWnd = FindWindowEx(this->GetSafeHwnd(), NULL, outWin->GetClassName(), NULL);
 	//EnumChildWindows(this->m_hWnd, GetChildrenWindowNames, NULL);
-	//EnumWindows(GetChildrenWindowNames, NULL);
-	/*if (tmpWnd != NULL)
+	EnumWindows(GetChildrenWindowNames, NULL);
+	if (tmpWnd != NULL)
 	{
 		HWND tmphWnd = tmpWnd->GetSafeHwnd();
 		CloseHandle(tmphWnd);
@@ -194,7 +193,7 @@ void CMFCPCLViewerDlg::OnBnClickedLoad()
 	else
 	{
 		MessageBox("Can't find vtkOutputWindow.");
-	}*/
+	}
 
 	CFileDialog fileopendlg(TRUE);
 	CString filepath;
@@ -327,7 +326,6 @@ BOOL CALLBACK GetChildrenWindowNames(HWND hwnd, LPARAM lParam)
 	GetWindowText(hwnd, name, len + 1);
 	if (strcmp(name,"vtkOutputWindow")==0)
 	{
-		SendMessage(hwnd, WM_ACTIVATE, 0, 0);
 		SendMessage(hwnd, WM_CLOSE, 0, 0);
 		//CloseHandle(hwnd);
 		delete name;
